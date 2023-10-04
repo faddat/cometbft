@@ -1,6 +1,7 @@
 package state
 
 import (
+	"fmt"
 	mempl "github.com/tendermint/tendermint/mempool"
 	"github.com/tendermint/tendermint/types"
 )
@@ -12,6 +13,7 @@ func TxPreCheck(state State) mempl.PreCheckFunc {
 		state.ConsensusParams.Block.MaxBytes,
 		state.Validators.Size(),
 	)
+	fmt.Printf("XXXX - TxPreCheck - maxDataBytes: %d\n", maxDataBytes)
 	return mempl.PreCheckMaxBytes(maxDataBytes)
 }
 

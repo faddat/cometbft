@@ -99,11 +99,12 @@ func (blockExec *BlockExecutor) CreateProposalBlock(
 
 	maxBytes := state.ConsensusParams.Block.MaxBytes
 	maxGas := state.ConsensusParams.Block.MaxGas
-
+	fmt.Printf("XXXX - max Bytes: %d; maxGas: %d\n", maxBytes, maxGas)
 	evidence, evSize := blockExec.evpool.PendingEvidence(state.ConsensusParams.Evidence.MaxBytes)
 
 	// Fetch a limited amount of valid txs
 	maxDataBytes := types.MaxDataBytes(maxBytes, evSize, state.Validators.Size())
+	fmt.Printf("max Data Bytes: %d", maxDataBytes)
 
 	txs := blockExec.mempool.ReapMaxBytesMaxGas(maxDataBytes, maxGas)
 

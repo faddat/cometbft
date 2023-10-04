@@ -2,6 +2,7 @@ package v0
 
 import (
 	"bytes"
+	"fmt"
 	"errors"
 	"sync"
 	"sync/atomic"
@@ -551,7 +552,7 @@ func (mem *CListMempool) ReapMaxBytesMaxGas(maxBytes, maxGas int64) types.Txs {
 		txs = append(txs, memTx.tx)
 
 		dataSize := types.ComputeProtoSizeForTxs([]types.Tx{memTx.tx})
-
+		fmt.Printf("XXXX - ReapMaxBytesMaxGas -> dataSize: %d\n", dataSize)
 		// Check total size requirement
 		if maxBytes > -1 && runningSize+dataSize > maxBytes {
 			return txs[:len(txs)-1]

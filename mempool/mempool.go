@@ -113,8 +113,8 @@ type PostCheckFunc func(types.Tx, *abci.ResponseCheckTx) error
 func PreCheckMaxBytes(maxBytes int64) PreCheckFunc {
 	return func(tx types.Tx) error {
 		txSize := types.ComputeProtoSizeForTxs([]types.Tx{tx})
-
-		if txSize > maxBytes {
+		fmt.Printf("XXXX - txsize: %d\n", txSize)
+		if txSize > maxBytes { // this check does nothing sensible.
 			return fmt.Errorf("tx size is too big: %d, max: %d", txSize, maxBytes)
 		}
 
