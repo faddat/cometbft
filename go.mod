@@ -298,4 +298,4 @@ require (
 	mvdan.cc/unparam v0.0.0-20220706161116-678bad134442 // indirect
 )
 
-replace github.com/cosmos/gogoproto v1.4.1 => github.com/composableFi/gogoproto v1.5.3
+replace github.com/cosmos/gogoproto v1.4.1 => github.com/composableFi/gogoproto v1.5.2
