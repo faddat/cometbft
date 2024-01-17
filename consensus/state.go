@@ -2267,7 +2267,25 @@ func (cs *State) signVote(
 
 func (cs *State) voteTime() time.Time {
 	now := cmttime.Now()
-	minVoteTime := now
+	//https://protobuf.dev/programming-guides/encoding/#varints
+	//if nanoseconds is greater than 268435456 proto encoding will take 1 extra byte
+	//so this nanoseconds adjustment is to make sure the vote time is always the same
+	nano := now.Nanosecond()
+	if nano < 268435456 {
+		nano = 268435456
+	}
+	newVoteTime := time.Date(
+		now.Year(),
+		now.Month(),
+		now.Day(),
+		now.Hour(),
+		now.Minute(),
+		now.Second(),
+		nano,
+		now.Location(),
+	)
+	minVoteTime := newVoteTime
+	now = newVoteTime
 	// Minimum time increment between blocks
 	const timeIota = time.Millisecond
 	// TODO: We should remove next line in case we don't vote for v in case cs.ProposalBlock == nil,
