@@ -42,7 +42,7 @@ const (
 	defaultRecvMessageCapacity = 22020096       // 21MB
 	defaultSendRate            = int64(5120000) // 5MB/s
 	defaultRecvRate            = int64(5120000) // 5MB/s
-	defaultSendTimeout         = 10 * time.Second
+	defaultSendTimeout         = 2 * time.Second
 	defaultPingInterval        = 60 * time.Second
 	defaultPongTimeout         = 45 * time.Second
 )
