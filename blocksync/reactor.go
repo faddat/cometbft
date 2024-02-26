@@ -64,7 +64,7 @@ type Reactor struct {
 }
 
 func NewReactorWithOfflineStateSync(state sm.State, blockExec *sm.BlockExecutor, store *store.BlockStore,
-	blockSync bool, offlineStateSyncHeight int64) *Reactor {
+	blockSync bool, offlineStateSyncHeight int64, metrics *Metrics) *Reactor {
 
 	storeHeight := store.Height()
 	if storeHeight == 0 {
@@ -101,6 +101,7 @@ func NewReactorWithOfflineStateSync(state sm.State, blockExec *sm.BlockExecutor,
 		requestsCh:      requestsCh,
 		errorsCh:        errorsCh,
 		appHashErrorsCh: appHashErrorsCh,
+		metrics:         metrics,
 	}
 	bcR.BaseReactor = *p2p.NewBaseReactor("Reactor", bcR)
 	return bcR
@@ -108,9 +109,9 @@ func NewReactorWithOfflineStateSync(state sm.State, blockExec *sm.BlockExecutor,
 
 // NewReactor returns new reactor instance.
 func NewReactor(state sm.State, blockExec *sm.BlockExecutor, store *store.BlockStore,
-	blockSync bool) *Reactor {
+	blockSync bool, metrics *Metrics) *Reactor {
 
-	return NewReactorWithOfflineStateSync(state, blockExec, store, blockSync, 0)
+	return NewReactorWithOfflineStateSync(state, blockExec, store, blockSync, 0, metrics)
 
 }
 
@@ -258,6 +259,8 @@ func (bcR *Reactor) ReceiveEnvelope(e p2p.Envelope) {
 // Handle messages from the poolReactor telling the reactor what to do.
 // NOTE: Don't sleep in the FOR_LOOP or otherwise slow it down!
 func (bcR *Reactor) poolRoutine(stateSynced bool) {
+	bcR.metrics.Syncing.Set(1)
+	defer bcR.metrics.Syncing.Set(0)
 
 	trySyncTicker := time.NewTicker(trySyncIntervalMS * time.Millisecond)
 	defer trySyncTicker.Stop()
