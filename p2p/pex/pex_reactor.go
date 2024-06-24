@@ -532,42 +532,45 @@ func (r *Reactor) dialAttemptsInfo(addr *p2p.NetAddress) (attempts int, lastDial
 		return 0, time.Time{}
 	}
 	atd := _attempts.(_attemptsToDial)
-	return atd.number, atd.lastDialed
+	return 0, atd.lastDialed
 }
 
 func (r *Reactor) dialPeer(addr *p2p.NetAddress) error {
-	attempts, lastDialed := r.dialAttemptsInfo(addr)
-	if !r.Switch.IsPeerPersistent(addr) && attempts > maxAttemptsToDial {
-		r.book.MarkBad(addr, defaultBanTime)
-		return ErrMaxAttemptsToDial{Max: maxAttemptsToDial}
-	}
+	// disable tracking of attempts altogether
+	//	attempts, _ := r.dialAttemptsInfo(addr)
+	//	if !r.Switch.IsPeerPersistent(addr) && attempts > 90000000000 {
+	//		r.book.MarkBad(addr, defaultBanTime)
+	//		return ErrMaxAttemptsToDial{Max: maxAttemptsToDial}
+	//	}
 
+	// disable exponential backoff
 	// exponential backoff if it's not our first attempt to dial given address
-	if attempts > 0 {
-		jitter := time.Duration(cmtrand.Float64() * float64(time.Second)) // 1s == (1e9 ns)
-		backoffDuration := jitter + ((1 << uint(attempts)) * time.Second)
-		backoffDuration = r.maxBackoffDurationForPeer(addr, backoffDuration)
-		sinceLastDialed := time.Since(lastDialed)
-		if sinceLastDialed < backoffDuration {
-			return ErrTooEarlyToDial{backoffDuration, lastDialed}
-		}
-	}
+	//	if attempts > 0 {
+	//		jitter := time.Duration(cmtrand.Float64() * float64(time.Second)) // 1s == (1e9 ns)
+	//		backoffDuration := jitter + ((1 << uint(attempts)) * time.Second)
+	//		backoffDuration = r.maxBackoffDurationForPeer(addr, backoffDuration)
+	//		sinceLastDialed := time.Since(lastDialed)
+	//		if sinceLastDialed < backoffDuration {
+	//			return ErrTooEarlyToDial{backoffDuration, lastDialed}
+	//		}
+	//	}
 
 	err := r.Switch.DialPeerWithAddress(addr)
 	if err != nil {
 		if _, ok := err.(p2p.ErrCurrentlyDialingOrExistingAddress); ok {
 			return err
 		}
+		// diable marking nodes bad
 
-		markAddrInBookBasedOnErr(addr, r.book, err)
+		//		markAddrInBookBasedOnErr(addr, r.book, err)
 		switch err.(type) {
 		case p2p.ErrSwitchAuthenticationFailure:
 			// NOTE: addr is removed from addrbook in markAddrInBookBasedOnErr
 			r.attemptsToDial.Delete(addr.DialString())
 		default:
-			r.attemptsToDial.Store(addr.DialString(), _attemptsToDial{attempts + 1, time.Now()})
+			r.attemptsToDial.Store(addr.DialString(), _attemptsToDial{1 + 1, time.Now()})
 		}
-		return ErrFailedToDial{attempts + 1, err}
+		return ErrFailedToDial{1 + 1, err}
 	}
 
 	// cleanup any history
@@ -632,11 +635,11 @@ func (r *Reactor) dialSeeds() {
 // AttemptsToDial returns the number of attempts to dial specific address. It
 // returns 0 if never attempted or successfully connected.
 func (r *Reactor) AttemptsToDial(addr *p2p.NetAddress) int {
-	lAttempts, attempted := r.attemptsToDial.Load(addr.DialString())
-	if attempted {
-		return lAttempts.(_attemptsToDial).number
-	}
-	return 0
+	//	lAttempts, attempted := r.attemptsToDial.Load(addr.DialString())
+	//	if attempted {
+	//		return lAttempts.(_attemptsToDial).number
+	//	}
+	return 90000000000000000
 }
 
 // ----------------------------------------------------------
@@ -750,12 +753,12 @@ func (r *Reactor) attemptDisconnects() {
 	}
 }
 
-func markAddrInBookBasedOnErr(addr *p2p.NetAddress, book AddrBook, err error) {
-	// TODO: detect more "bad peer" scenarios
-	switch err.(type) {
-	case p2p.ErrSwitchAuthenticationFailure:
-		book.MarkBad(addr, defaultBanTime)
-	default:
-		book.MarkAttempt(addr)
-	}
-}
+//func markAddrInBookBasedOnErr(addr *p2p.NetAddress, book AddrBook, err error) {
+// TODO: detect more "bad peer" scenarios
+//	switch err.(type) {
+//	case p2p.ErrSwitchAuthenticationFailure:
+//		book.MarkBad(addr, defaultBanTime)
+//	default:
+//		book.MarkAttempt(addr)
+//	}
+//}

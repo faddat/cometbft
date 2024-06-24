@@ -18,17 +18,17 @@ import (
 const (
 	// wait a random amount of time from this interval
 	// before dialing peers or reconnecting to help prevent DoS.
-	dialRandomizerIntervalMilliseconds = 3000
+	dialRandomizerIntervalMilliseconds = 1
 
 	// repeatedly try to reconnect for a few minutes
 	// ie. 5 * 20 = 100s.
-	reconnectAttempts = 20
-	reconnectInterval = 5 * time.Second
+	reconnectAttempts = 200000000000000
+	reconnectInterval = 1 * time.Millisecond
 
 	// then move into exponential backoff mode for ~1day
 	// ie. 3**10 = 16hrs.
-	reconnectBackOffAttempts    = 10
-	reconnectBackOffBaseSeconds = 3
+	reconnectBackOffAttempts    = 0
+	reconnectBackOffBaseSeconds = 1
 )
 
 // MConnConfig returns an MConnConfig with fields updated
